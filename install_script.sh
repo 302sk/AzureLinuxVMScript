@@ -45,6 +45,11 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
+# Get arguments
+shadowsockspwd=$1
+shadowsocksport=$2
+shadowsockscipher=$3
+
 # Make sure only root can run our script
 [[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] This script must be run as root!" && exit 1
 
@@ -255,7 +260,7 @@ pre_install(){
     echo "Please input password for shadowsocks-libev:"
     # read -p "(Default password: teddysun.com):" shadowsockspwd
     # [ -z "${shadowsockspwd}" ] && shadowsockspwd="teddysun.com"
-    shadowsockspwd="123ss"
+    # shadowsockspwd="123ss"
     echo
     echo "---------------------------"
     echo "password = ${shadowsockspwd}"
@@ -268,7 +273,7 @@ pre_install(){
     dport=$(shuf -i 9000-19999 -n 1)
     echo -e "Please enter a port for shadowsocks-libev [1-65535]"
     # read -p "(Default port: ${dport}):" shadowsocksport
-    shadowsocksport=443
+    # shadowsocksport=443
     [ -z "$shadowsocksport" ] && shadowsocksport=${dport}
     expr ${shadowsocksport} + 1 &>/dev/null
     if [ $? -eq 0 ]; then
@@ -304,8 +309,8 @@ pre_install(){
         echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#ciphers[@]}"
         continue
     fi
-    shadowsockscipher=${ciphers[$pick-1]}
-    shadowsockscipher="aes-256-cfb"
+    # shadowsockscipher=${ciphers[$pick-1]}
+    # shadowsockscipher="aes-256-cfb"
     echo
     echo "---------------------------"
     echo "cipher = ${shadowsockscipher}"
@@ -352,34 +357,36 @@ download_files(){
 }
 
 install_libsodium() {
-    if [ ! -f /usr/lib/libsodium.a ]; then
-        cd ${cur_dir}
-        tar zxf ${libsodium_file}.tar.gz
-        cd ${libsodium_file}
-        ./configure --prefix=/usr && make && make install
-        if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] ${libsodium_file} install failed."
-            exit 1
-        fi
-    else
-        echo -e "[${green}Info${plain}] ${libsodium_file} already installed."
-    fi
+    # if [ ! -f /usr/lib/libsodium.a ]; then
+    #     cd ${cur_dir}
+    #     tar zxf ${libsodium_file}.tar.gz
+    #     cd ${libsodium_file}
+    #     ./configure --prefix=/usr && make && make install
+    #     if [ $? -ne 0 ]; then
+    #         echo -e "[${red}Error${plain}] ${libsodium_file} install failed."
+    #         exit 1
+    #     fi
+    # else
+    #     echo -e "[${green}Info${plain}] ${libsodium_file} already installed."
+    # fi
+    apt-get -y --no-install-recommends install libsodium-dev
 }
 
 install_mbedtls() {
-    if [ ! -f /usr/lib/libmbedtls.a ]; then
-        cd ${cur_dir}
-        tar xf ${mbedtls_file}-gpl.tgz
-        cd ${mbedtls_file}
-        make SHARED=1 CFLAGS=-fPIC
-        make DESTDIR=/usr install
-        if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] ${mbedtls_file} install failed."
-            exit 1
-        fi
-    else
-        echo -e "[${green}Info${plain}] ${mbedtls_file} already installed."
-    fi
+    # if [ ! -f /usr/lib/libmbedtls.a ]; then
+    #     cd ${cur_dir}
+    #     tar xf ${mbedtls_file}-gpl.tgz
+    #     cd ${mbedtls_file}
+    #     make SHARED=1 CFLAGS=-fPIC
+    #     make DESTDIR=/usr install
+    #     if [ $? -ne 0 ]; then
+    #         echo -e "[${red}Error${plain}] ${mbedtls_file} install failed."
+    #         exit 1
+    #     fi
+    # else
+    #     echo -e "[${green}Info${plain}] ${mbedtls_file} already installed."
+    # fi
+    apt-get -y --no-install-recommends install libmbedtls-dev
 }
 
 # Config shadowsocks
@@ -419,11 +426,12 @@ install_shadowsocks(){
     install_mbedtls
 
     ldconfig
-    cd ${cur_dir}
-    tar zxf ${shadowsocks_libev_ver}.tar.gz
-    cd ${shadowsocks_libev_ver}
-    ./configure --disable-documentation
-    make && make install
+    # cd ${cur_dir}
+    # tar zxf ${shadowsocks_libev_ver}.tar.gz
+    # cd ${shadowsocks_libev_ver}
+    # ./configure --disable-documentation
+    # make && make install
+    apt-get -y --no-install-recommends install shadowsocks-libev
     if [ $? -eq 0 ]; then
         chmod +x /etc/init.d/shadowsocks
         update-rc.d -f shadowsocks defaults
@@ -440,10 +448,10 @@ install_shadowsocks(){
         exit 1
     fi
 
-    cd ${cur_dir}
-    rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz
-    rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
-    rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
+    # cd ${cur_dir}
+    # rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz
+    # rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
+    # rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
 
     clear
     echo
@@ -462,7 +470,7 @@ install_shadowsocks(){
 install_shadowsocks_libev(){
     disable_selinux
     pre_install
-    download_files
+    # download_files
     config_shadowsocks
     install_shadowsocks
 }
