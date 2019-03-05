@@ -350,10 +350,10 @@ download() {
 download_files(){
     cd ${cur_dir}
 
-    download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
-    download "${libsodium_file}.tar.gz" "${libsodium_url}"
-    download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
-    download "/etc/init.d/shadowsocks" "${init_script_link}"
+    # download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
+    # download "${libsodium_file}.tar.gz" "${libsodium_url}"
+    # download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
+    # download "/etc/init.d/shadowsocks" "${init_script_link}"
 }
 
 install_libsodium() {
@@ -432,6 +432,8 @@ install_shadowsocks(){
     # ./configure --disable-documentation
     # make && make install
     apt-get -y --no-install-recommends install shadowsocks-libev
+    init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian"
+    download "/etc/init.d/shadowsocks" "${init_script_link}"
     if [ $? -eq 0 ]; then
         chmod +x /etc/init.d/shadowsocks
         update-rc.d -f shadowsocks defaults
@@ -520,8 +522,8 @@ uninstall_shadowsocks_libev(){
 }
 
 # Initialization step
-action=$1
-[ -z $1 ] && action=install
+action=$4
+[ -z $4 ] && action=install
 case "$action" in
     install|uninstall)
         ${action}_shadowsocks_libev
